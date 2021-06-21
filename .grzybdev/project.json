@@ -1,0 +1,12 @@
+{
+    "description": "Client application for OpenMic, designed for use on mobile devices.",
+    "highlights": [
+        "Written in Java",
+		"Compatible with most of Android devices",
+		"Transmits data from phone mic directly to PC via USB or Wi-Fi"
+    ],
+    "public": true,
+    "project_site": "https://grzybmic.web.app/",
+    "icon": "icon.ico",
+    "show": true
+}
