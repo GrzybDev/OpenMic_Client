@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
+import pl.grzybdev.openmic.client.network.Packet
 import java.io.BufferedReader
 import java.io.DataOutputStream
 import java.io.InputStreamReader
@@ -32,6 +33,9 @@ class MainActivity : AppCompatActivity() {
             val socket: Socket = Socket(ip.text.toString(), Integer.parseInt(port.text.toString()));
             val outToServer: DataOutputStream = DataOutputStream(socket.getOutputStream());
             val inFromServer: BufferedReader = BufferedReader(InputStreamReader(socket.getInputStream()));
+
+            outToServer.write(Packet.getHelloPacket());
+            outToServer.flush();
         }.start();
     }
 }
