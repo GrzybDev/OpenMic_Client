@@ -6,7 +6,9 @@ name: Debug Build
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
   push:
+    branches: [ main ]
   pull_request:
+    branches: [ main ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -24,13 +26,24 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      - name: Build Android App
-        uses: sparkfabrik/android-build-action@v1.0.0
+      - name: Build APK
+        uses: vgaidarji/android-github-actions-build@v1.0.1
         with:
-          project-path: .
+          args: "./gradlew assembleDebug"
+      
+      - name: Build bundle
+        uses: vgaidarji/android-github-actions-build@v1.0.1
+        with:
+          args: "./gradlew bundleDebug"
+      
+      - name: Move output to final destination
+        run: |
+          mkdir final
+          mv app/build/outputs/apk/debug/app-debug.apk final/
+          mv app/build/outputs/bundle/debug/app-debug.aab final/
       
       - name: Upload build artifact
         uses: actions/upload-artifact@v2.2.1
         with:
           name: App
-          path: ./output.apk
+          path: ./final
