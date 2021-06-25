@@ -25,35 +25,23 @@ jobs:
         with:
           args: "./gradlew assembleRelease"
       
-      - name: Build bundle
-        uses: vgaidarji/android-github-actions-build@v1.0.1
-        with:
-          args: "./gradlew bundleRelease"
-          
+      - name: Move output to final destination
+        run: |
+          mkdir final
+          cp app/build/outputs/apk/release/app-release-unsigned.apk final/
+      
       - uses: r0adkll/sign-android-release@v1
         name: Sign APK
         # ID used to access action output
         id: sign_apk
         with:
-          releaseDirectory: app/build/outputs/apk/release
+          releaseDirectory: final/
           signingKeyBase64: ${{ secrets.SIGNING_KEY }}
           alias: ${{ secrets.ALIAS }}
           keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
         env:
           BUILD_TOOLS_VERSION: "30.0.3"
-          
-      - uses: r0adkll/sign-android-release@v1
-        name: Sign Bundle
-        # ID used to access action output
-        id: sign_bundle
-        with:
-          releaseDirectory: app/build/outputs/bundle/release
-          signingKeyBase64: ${{ secrets.SIGNING_KEY }}
-          alias: ${{ secrets.ALIAS }}
-          keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
-        env:
-          BUILD_TOOLS_VERSION: "30.0.3"
-
+      
       - name: Upload APK to release
         uses: svenstaro/upload-release-action@v2
         with:
@@ -63,20 +51,33 @@ jobs:
           tag: ${{ github.ref }}
           overwrite: true
       
-      - name: Upload APK to release
+      - name: Build bundle
+        uses: vgaidarji/android-github-actions-build@v1.0.1
+        with:
+          args: "./gradlew bundleRelease"
+      
+      - name: Move output to final destination
+        run: |
+          rm -rfv final/*
+          cp app/build/outputs/bundle/release/app-release.aab final/
+          
+      - uses: r0adkll/sign-android-release@v1
+        name: Sign bundle
+        # ID used to access action output
+        id: sign_bundle
+        with:
+          releaseDirectory: final/
+          signingKeyBase64: ${{ secrets.SIGNING_KEY }}
+          alias: ${{ secrets.ALIAS }}
+          keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
+        env:
+          BUILD_TOOLS_VERSION: "30.0.3"
+      
+      - name: Upload Bundle to release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: ${{steps.sign_bundle.outputs.signedReleaseFile}}
           asset_name: OpenMic_Client.aab
-          tag: ${{ github.ref }}
-          overwrite: true
-
-      - name: Upload Bundle to release
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: DistributionKit/InstallerOpenMic_Server.run
-          asset_name: OpenMic_Linux_Setup_amd64.run
           tag: ${{ github.ref }}
           overwrite: true
