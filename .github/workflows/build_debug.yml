@@ -44,5 +44,5 @@ jobs:
       - name: Upload build artifact
         uses: actions/upload-artifact@v2.2.1
         with:
-          name: App_${{ matrix.build_type }}
+          name: ${{ matrix.build_type }}
           path: ${{ matrix.final_path }}
