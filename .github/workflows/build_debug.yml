@@ -28,7 +28,7 @@ jobs:
             build_type: APK
             final_path: app/build/outputs/apk/debug/app-debug.apk
           - gradle_arg: "./gradlew bundleDebug"
-            build_type: bundle
+            build_type: Bundle
             final_path: app/build/outputs/bundle/debug/app-debug.aab
 
     # Steps represent a sequence of tasks that will be executed as part of the job
