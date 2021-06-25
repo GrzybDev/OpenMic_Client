@@ -17,33 +17,32 @@ on:
 jobs:
   # This workflow contains a single job called "build"
   build:
-    name: Android Build
+    name: Build ${{ matrix.build_type }}
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        include:
+          - gradle_arg: "./gradlew assembleDebug"
+            build_type: APK
+            final_path: app/build/outputs/apk/debug/app-debug.apk
+          - gradle_arg: "./gradlew bundleDebug"
+            build_type: bundle
+            final_path: app/build/outputs/bundle/debug/app-debug.aab
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      - name: Build APK
+      - name: Build
         uses: vgaidarji/android-github-actions-build@v1.0.1
         with:
-          args: "./gradlew assembleDebug"
-      
-      - name: Build bundle
-        uses: vgaidarji/android-github-actions-build@v1.0.1
-        with:
-          args: "./gradlew bundleDebug"
-      
-      - name: Move output to final destination
-        run: |
-          mkdir final
-          cp app/build/outputs/apk/debug/app-debug.apk final/
-          cp app/build/outputs/bundle/debug/app-debug.aab final/
+          args: ${{ matrix.gradle_arg }}
       
       - name: Upload build artifact
         uses: actions/upload-artifact@v2.2.1
         with:
           name: App
-          path: ./final
+          path: ${{ matrix.final_path }}
