@@ -1,0 +1,70 @@
+{
+  "project_info": {
+    "project_number": "117180217601",
+    "firebase_url": "https://grzybmic.firebaseio.com",
+    "project_id": "grzybmic",
+    "storage_bucket": "grzybmic.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:117180217601:android:2af20f0e873facc8490300",
+        "android_client_info": {
+          "package_name": "pl.GrzybDev.Microphone"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "117180217601-42pmkl7n2tmeb7gu6ik1lugbbtjt3q7m.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBODvUPyMhVKs_6FrnluHToHm7HL1g6vck"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "117180217601-42pmkl7n2tmeb7gu6ik1lugbbtjt3q7m.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      },
+      "admob_app_id": "ca-app-pub-9830507899812507~6155068717"
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:117180217601:android:34b9b59e5da267fe490300",
+        "android_client_info": {
+          "package_name": "pl.grzybdev.openmic.client"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "117180217601-42pmkl7n2tmeb7gu6ik1lugbbtjt3q7m.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBODvUPyMhVKs_6FrnluHToHm7HL1g6vck"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "117180217601-42pmkl7n2tmeb7gu6ik1lugbbtjt3q7m.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
