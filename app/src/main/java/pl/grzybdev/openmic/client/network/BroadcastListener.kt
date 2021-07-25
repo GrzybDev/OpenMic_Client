@@ -26,27 +26,32 @@ class BroadcastListener {
 
         this.context = context
 
-        try {
-            broadcastSocket = DatagramSocket(port, getBroadcastAddress())
-            broadcastSocket.broadcast = true
-            broadcastSocket.soTimeout = 1000
+        Log.d(javaClass.name, "Starting Broadcast Thread...")
 
-            Log.d(javaClass.name, "Listening for broadcasts on " + broadcastSocket.getLocalAddress() + "...");
+        try {
+            if (!this::broadcastSocket.isInitialized) {
+                broadcastSocket = DatagramSocket(port, getBroadcastAddress())
+                broadcastSocket.broadcast = true
+                broadcastSocket.soTimeout = 1000
+            }
         } catch (e: IOException) {
             Log.e(javaClass.name, e.toString());
 
             return false;
         }
 
-        broadcastThread = thread(start = true) { handleBroadcasts() }
+        broadcastThread = thread() { handleBroadcasts() }
 
         return true
     }
 
     fun stopListening() {
-        if (!isRunning) throw IllegalStateException("BroadcastListener is NOT running! Cannot stop.")
-
-        broadcastThread.interrupt()
+        if (this::broadcastThread.isInitialized) {
+            Log.d(javaClass.name, "Interrupting broadcast thread...")
+            broadcastThread.interrupt()
+        } else {
+            Log.w(javaClass.name, "Cannot interrupt broadcast thread because it's not initialized yet!")
+        }
     }
 
     private fun getBroadcastAddress(): InetAddress? {
@@ -55,6 +60,8 @@ class BroadcastListener {
 
         val inetAddress = InetAddress.getByAddress(getIPBytes(dhcp.ipAddress))
         val networkInterface: NetworkInterface = NetworkInterface.getByInetAddress(inetAddress)
+            ?: return null
+
         for (address in networkInterface.interfaceAddresses) {
             if (address.broadcast != null) return address.broadcast
         }
@@ -70,6 +77,8 @@ class BroadcastListener {
 
     private fun handleBroadcasts() {
         isRunning = true
+
+        Log.d(javaClass.name, "Listening for broadcasts on ${broadcastSocket.localAddress}:${broadcastSocket.localPort}...");
 
         while (!broadcastThread.isInterrupted) {
             Log.d(javaClass.name, "Waiting for broadcast packet...")
@@ -91,6 +100,8 @@ class BroadcastListener {
                 Log.d(javaClass.name, broadcast)
             }
         }
+
+        Log.d(javaClass.name, "Finished Broadcast Thread.")
 
         isRunning = false;
     }
