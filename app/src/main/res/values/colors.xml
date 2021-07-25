@@ -10,4 +10,7 @@
     <color name="openmic_night_brand">#90CAF9</color>
     <color name="openmic_night_brand_variant">#1976D2</color>
 
+    <color name="main_status_not_connected">#E53935</color>
+    <color name="main_status_connected">#43A047</color>
+
 </resources>
