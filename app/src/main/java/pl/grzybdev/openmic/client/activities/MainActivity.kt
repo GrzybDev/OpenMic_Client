@@ -10,6 +10,7 @@ import android.net.NetworkRequest
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -36,6 +37,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var mFirebaseAnalytics: FirebaseAnalytics
 
     private val broadcastListener: BroadcastListener = BroadcastListener()
+
+    private var lastWifiStatus: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,63 +76,46 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initWifiListener() {
-        val cm = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val wifiMgr = applicationContext.getSystemService(WIFI_SERVICE) as WifiManager
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            val callback: NetworkCallback = object:NetworkCallback() {
-                override fun onAvailable(network: Network) {
-                    super.onAvailable(network)
-                    updateWifiStatus(true)
-                }
-
-                override fun onLost(network: Network) {
-                    super.onLost(network)
-                    updateWifiStatus(false)
-                }
-            }
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                cm.registerDefaultNetworkCallback(callback)
+        fixedRateTimer("WifiCheck", true, 0L, 1000) {
+            if (wifiMgr.isWifiEnabled) { // Wi-Fi adapter is ON
+                val wifiInfo = wifiMgr.connectionInfo
+                updateWifiStatus(wifiInfo.networkId != -1)
             } else {
-                val request = NetworkRequest.Builder()
-                    .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET).build()
-                cm.registerNetworkCallback(request, callback)
-            }
-        } else {
-            val wifiMgr = applicationContext.getSystemService(WIFI_SERVICE) as WifiManager
-
-            fixedRateTimer("WifiCheck", true, 0L, 1000) {
-                if (wifiMgr.isWifiEnabled) { // Wi-Fi adapter is ON
-                    val wifiInfo = wifiMgr.connectionInfo
-                    updateWifiStatus(wifiInfo.networkId == -1)
-                } else {
-                    updateWifiStatus(false) // Wi-Fi adapter is OFF
-                }
+                updateWifiStatus(false) // Wi-Fi adapter is OFF
             }
         }
     }
 
     fun updateWifiStatus(isConnected: Boolean) {
-        if (isConnected) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                wifiStatus.setTextColor(getColor(R.color.main_status_connected))
-            } else {
-                wifiStatus.setTextColor(ContextCompat.getColor(this, R.color.main_status_connected))
-            }
+        if (lastWifiStatus == isConnected) return
+        lastWifiStatus = isConnected
 
-            wifiStatus.text = getString(R.string.main_status_wifi_enabled)
+        if (isConnected)
             broadcastListener.startListening(49152, this)
+        else
+            broadcastListener.stopListening()
+
+        val textColor: Int
+        val text: Int
+
+        if (isConnected) {
+            textColor = R.color.main_status_connected
+            text = R.string.main_status_wifi_enabled
         } else {
+            textColor = R.color.main_status_not_connected
+            text = R.string.main_status_wifi_disabled
+        }
+
+        runOnUiThread {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                wifiStatus.setTextColor(getColor(R.color.main_status_not_connected))
+                wifiStatus.setTextColor(getColor(textColor))
             } else {
-                wifiStatus.setTextColor(ContextCompat.getColor(this,
-                    R.color.main_status_not_connected
-                ))
+                wifiStatus.setTextColor(ContextCompat.getColor(this, textColor))
             }
 
-            wifiStatus.text = getString(R.string.main_status_wifi_disabled)
-            broadcastListener.stopListening()
+            wifiStatus.text = getString(text)
         }
     }
 }
