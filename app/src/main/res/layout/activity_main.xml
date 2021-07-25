@@ -4,7 +4,19 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".activities.MainActivity">
+
+    <com.google.android.gms.ads.AdView
+        xmlns:ads="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/adView_Top"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        ads:adSize="BANNER"
+        ads:adUnitId="@string/banner_main_top_unit_id" />
 
     <TextView
         android:id="@+id/pageTitle"
@@ -15,7 +27,7 @@
         android:textAppearance="@style/TextAppearance.AppCompat.Display1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/adView_Top" />
 
     <LinearLayout
         android:id="@+id/iconsLayout"
@@ -94,7 +106,8 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="@string/main_status_wifi_disabled" />
+                android:text="@string/main_status_wifi_disabled"
+                android:textColor="@color/main_status_not_connected" />
         </LinearLayout>
 
         <LinearLayout
@@ -126,7 +139,8 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="@string/main_status_usb_disconnected" />
+                android:text="@string/main_status_usb_disconnected"
+                android:textColor="@color/main_status_not_connected" />
         </LinearLayout>
     </LinearLayout>
 
@@ -183,6 +197,19 @@
                 android:text="@string/main_page_btn_faq"
                 style="?android:attr/buttonBarButtonStyle" />
         </LinearLayout>
+
     </LinearLayout>
+
+    <com.google.android.gms.ads.AdView
+        xmlns:ads="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/adView_Bottom"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/descriptionLayout"
+        ads:adSize="BANNER"
+        ads:adUnitId="@string/banner_main_bottom_unit_id" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
