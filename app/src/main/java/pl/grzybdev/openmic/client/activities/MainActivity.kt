@@ -14,14 +14,13 @@ import android.os.BatteryManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.AdView
-import com.google.android.gms.ads.MobileAds
+import androidx.fragment.app.FragmentContainerView
 import com.google.firebase.analytics.FirebaseAnalytics
 import pl.grzybdev.openmic.client.R
+import pl.grzybdev.openmic.client.activities.fragments.main.MainScreen
+import pl.grzybdev.openmic.client.enums.ConnectionType
 import pl.grzybdev.openmic.client.network.BroadcastListener
 
 
@@ -32,28 +31,18 @@ class MainActivity : AppCompatActivity() {
         const val WIFI_CHECK_INTENT = "android.net.conn.CONNECTIVITY_CHANGE"
     }
 
+    private val broadcastListener: BroadcastListener = BroadcastListener()
 
-    private val adViewsMutable: MutableList<Int> = mutableListOf(
-        R.id.adView_Top,
-        R.id.adView_Bottom
-    )
-
-    private val adViews: List<Int> = adViewsMutable
-
-    private var wifiLastStatus: Boolean = false
-    private var usbLastStatus: Boolean = false
-
-    private lateinit var wifiStatus: TextView
-    private lateinit var usbStatus: TextView
+    private lateinit var fragmentContainer: FragmentContainerView
 
     private lateinit var mFirebaseAnalytics: FirebaseAnalytics
-
-    private val broadcastListener: BroadcastListener = BroadcastListener()
 
     private lateinit var connectivityManager: ConnectivityManager
     private lateinit var connectivityManagerCallback: ConnectivityManager.NetworkCallback
     private lateinit var wifiManager: WifiManager
 
+    private var wifiLastStatus: Boolean = false
+    private var usbLastStatus: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,9 +52,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this)
-
-        initViews()
-        initAds()
+        fragmentContainer = findViewById(R.id.fragmentContainer)
     }
 
     override fun onResume() {
@@ -106,55 +93,36 @@ class MainActivity : AppCompatActivity() {
 
         Log.d(javaClass.name, "Updating listener statuses...")
 
-        updateListenerStatus(wifiStatus, false)
-        updateListenerStatus(usbStatus, false)
+        updateStatus(ConnectionType.WiFi, false)
+        updateStatus(ConnectionType.USB, false)
     }
 
-    private fun initViews() {
-        wifiStatus = findViewById(R.id.statusWifi)
-        usbStatus = findViewById(R.id.statusUSB)
+    private val networkReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            updateWifiState()
+        }
     }
 
-    private fun initAds() {
-        Log.d(javaClass.name, "initAds: Initializing ads...")
-
-        MobileAds.initialize(this) {}
-
-        adViews.forEach { adViewID ->
-
-            run {
-                val adRequest = AdRequest.Builder().build()
-                val adView = findViewById<AdView>(adViewID)
-
-                adView.loadAd(adRequest)
+    private val batteryStatusReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            if (intent != null) {
+                updateUSBStatus(intent)
             }
         }
     }
 
     private fun initWifiListener() {
-        Log.d(javaClass.name, "initWifiListener: Initializing Wi-Fi Listener...")
+        Log.d(javaClass.name, "initWifiListener: Initializing WiFi Listener...")
 
         if (ContextCompat.checkSelfPermission(
                 this,
                 WIFI_STATE_PERMISSION
             ) == PackageManager.PERMISSION_DENIED
         ) {
-            Log.d(javaClass.name, "initWifiListener: Disabling Wi-Fi, because we don't have access to device location...")
+            Log.d(javaClass.name, "initWifiListener: Disabling WiFi, because we don't have access to device location...")
 
-            runOnUiThread {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    wifiStatus.setTextColor(getColor(R.color.main_status_disabled))
-                } else {
-                    wifiStatus.setTextColor(
-                        ContextCompat.getColor(
-                            this,
-                            R.color.main_status_disabled
-                        )
-                    )
-                }
-
-                wifiStatus.text = getString(R.string.main_status_wifi_no_location)
-            }
+            val mainScreen: MainScreen = supportFragmentManager.findFragmentById(R.id.fragmentContainer) as MainScreen
+            mainScreen.setWifiDisabled()
 
             return
         }
@@ -179,6 +147,23 @@ class MainActivity : AppCompatActivity() {
         }
 
         Log.d(javaClass.name, "initWifiListener: Finished initializing Wi-Fi listener!")
+    }
+
+    private fun updateWifiState() {
+        Log.d(javaClass.name, "updateWifiState: Updating Wi-Fi state...")
+
+        if (wifiManager.isWifiEnabled) {
+            Log.d(javaClass.name, "updateWifiState: WiFi adapter is ON")
+
+            val wifiInfo = wifiManager.connectionInfo
+            updateStatus(
+                ConnectionType.WiFi,
+                wifiInfo.networkId != -1
+            ) // networkId returns -1 when not connected to any Wi-Fi network
+        } else {
+            Log.d(javaClass.name, "updateWifiState: WiFi adapter is OFF")
+            updateStatus(ConnectionType.WiFi, false) // Wi-Fi adapter is OFF
+        }
     }
 
     private fun getConnectivityManagerCallback(): ConnectivityManager.NetworkCallback {
@@ -210,90 +195,14 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    private val networkReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            updateWifiState()
-        }
-    }
-
-    private fun updateWifiState() {
-        Log.d(javaClass.name, "updateWifiState: Updating Wi-Fi state...")
-
-        if (wifiManager.isWifiEnabled) {
-            Log.d(javaClass.name, "updateWifiState: Wi-Fi adapter is ON")
-
-            val wifiInfo = wifiManager.connectionInfo
-            updateListenerStatus(
-                wifiStatus,
-                wifiInfo.networkId != -1
-            ) // networkId returns -1 when not connected to any Wi-Fi network
-        } else {
-            Log.d(javaClass.name, "updateWifiState: Wi-Fi adapter is OFF")
-            updateListenerStatus(wifiStatus, false) // Wi-Fi adapter is OFF
-        }
-    }
-
-    private fun updateListenerStatus(statusTextView: TextView, isConnected: Boolean) {
-        val changeText: String = if (statusTextView == wifiStatus) "Wi-Fi" else "USB"
-
-        Log.d(javaClass.name, "updateListenerStatus: Changing status of $changeText to ${if (isConnected) "enabled" else "disabled"}")
-
-        val textColor: Int
-        val text: Int
-
-        if (statusTextView == wifiStatus) {
-            if (wifiLastStatus == isConnected) return
-            else wifiLastStatus = isConnected
-
-            if (isConnected) {
-                broadcastListener.startListening(49152, this)
-                textColor = R.color.main_status_connected
-                text = R.string.main_status_wifi_enabled
-            } else {
-                broadcastListener.stopListening()
-                textColor = R.color.main_status_not_connected
-                text = R.string.main_status_wifi_disabled
-            }
-        } else {
-            if (usbLastStatus == isConnected) return
-            else usbLastStatus = isConnected
-
-            if (isConnected) {
-                textColor = R.color.main_status_disabled
-                text = R.string.main_status_usb_connected
-            } else {
-                textColor = R.color.main_status_not_connected
-                text = R.string.main_status_usb_disconnected
-            }
-        }
-
-        runOnUiThread {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                statusTextView.setTextColor(getColor(textColor))
-            } else {
-                statusTextView.setTextColor(ContextCompat.getColor(this, textColor))
-            }
-
-            statusTextView.text = getString(text)
-        }
-    }
-
     private fun initUSBListener() {
         Log.d(javaClass.name, "initUSBListener: Registering batteryStatusReceiver...")
         registerReceiver(batteryStatusReceiver, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
         Log.d(javaClass.name, "initUSBListener: Successfully registered batteryStatusReceiver")
     }
 
-    private val batteryStatusReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            if (intent != null) {
-                updateUSBStatus(intent)
-            }
-        }
-    }
-
     private fun updateUSBStatus(batteryStatus: Intent) {
-        Log.d(javaClass.name, "updateUSBStatus: Updating USB connection status...")
+        Log.d(javaClass.name, "updateUSBStatus: USB status has been updated")
 
         val status: Int = batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1)
         val isCharging: Boolean = status == BatteryManager.BATTERY_STATUS_CHARGING
@@ -303,6 +212,27 @@ class MainActivity : AppCompatActivity() {
         val chargePlug: Int = batteryStatus.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1)
         val usbCharge: Boolean = chargePlug == BatteryManager.BATTERY_PLUGGED_USB
 
-        updateListenerStatus(usbStatus, isCharging && usbCharge)
+        updateStatus(ConnectionType.USB, isCharging && usbCharge)
     }
+
+    private fun updateStatus(type: ConnectionType, isConnected: Boolean) {
+        when (type) {
+            ConnectionType.WiFi -> { if (wifiLastStatus == isConnected) return else wifiLastStatus = isConnected }
+            ConnectionType.USB -> { if (usbLastStatus == isConnected) return else usbLastStatus = isConnected }
+        }
+
+        Log.d(javaClass.name, "updateStatus: $type is now ${if (isConnected) "enabled" else "disabled"}")
+
+        val mainScreen: MainScreen = supportFragmentManager.findFragmentById(R.id.fragmentContainer) as MainScreen
+        mainScreen.updateListenerStatus(type, isConnected)
+
+        if (type == ConnectionType.WiFi) {
+            if (isConnected) {
+                broadcastListener.startListening(49153, this)
+            } else {
+                broadcastListener.stopListening()
+            }
+        }
+    }
+
 }
