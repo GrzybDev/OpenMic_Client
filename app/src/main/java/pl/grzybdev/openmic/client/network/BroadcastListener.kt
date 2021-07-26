@@ -2,13 +2,9 @@ package pl.grzybdev.openmic.client.network
 
 import android.content.Context
 import android.net.wifi.WifiManager
-import android.system.Os.socket
 import android.util.Log
 import java.io.IOException
-import java.net.DatagramPacket
-import java.net.DatagramSocket
-import java.net.InetAddress
-import java.net.NetworkInterface
+import java.net.*
 import kotlin.concurrent.thread
 
 
@@ -22,11 +18,11 @@ class BroadcastListener {
     private lateinit var context: Context
 
     fun startListening(port: Int, context: Context): Boolean {
-        if (isRunning) throw IllegalStateException("BroadcastListener is already listening!")
+        if (isRunning) throw IllegalStateException("startListening: BroadcastListener is already listening, cannot start!")
 
         this.context = context
 
-        Log.d(javaClass.name, "Starting Broadcast Thread...")
+        Log.d(javaClass.name, "startListening: Starting Broadcast Thread...")
 
         try {
             if (!this::broadcastSocket.isInitialized) {
@@ -35,27 +31,26 @@ class BroadcastListener {
                 broadcastSocket.soTimeout = 1000
             }
         } catch (e: IOException) {
-            Log.e(javaClass.name, e.toString());
+            Log.e(javaClass.name, e.toString())
 
-            return false;
+            return false
         }
 
-        broadcastThread = thread() { handleBroadcasts() }
+        broadcastThread = thread { handleBroadcasts() }
 
         return true
     }
 
     fun stopListening() {
-        if (this::broadcastThread.isInitialized) {
-            Log.d(javaClass.name, "Interrupting broadcast thread...")
-            broadcastThread.interrupt()
-        } else {
-            Log.w(javaClass.name, "Cannot interrupt broadcast thread because it's not initialized yet!")
-        }
+        if (!isRunning) throw IllegalStateException("stopListening: BroadcastListener is not listening, cannot stop!")
+
+        Log.d(javaClass.name, "stopListening: Interrupting broadcast thread...")
+        broadcastThread.interrupt()
     }
 
     private fun getBroadcastAddress(): InetAddress? {
-        val wifiMgr = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+        val wifiMgr =
+            context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
         val dhcp = wifiMgr.dhcpInfo
 
         val inetAddress = InetAddress.getByAddress(getIPBytes(dhcp.ipAddress))
@@ -78,16 +73,21 @@ class BroadcastListener {
     private fun handleBroadcasts() {
         isRunning = true
 
-        Log.d(javaClass.name, "Listening for broadcasts on ${broadcastSocket.localAddress}:${broadcastSocket.localPort}...");
+        Log.d(
+            javaClass.name,
+            "handleBroadcasts: Listening for broadcasts on ${broadcastSocket.localAddress}:${broadcastSocket.localPort}..."
+        )
 
         while (!broadcastThread.isInterrupted) {
-            Log.d(javaClass.name, "Waiting for broadcast packet...")
+            Log.d(javaClass.name, "handleBroadcasts: Waiting for broadcast packet...")
 
             val receiveData = ByteArray(1024)
             val receivePacket = DatagramPacket(receiveData, receiveData.size)
 
             try {
                 broadcastSocket.receive(receivePacket)
+            } catch (e: SocketTimeoutException) {
+                // Do nothing
             } catch (e: IOException) {
                 Log.e(javaClass.name, e.toString())
             }
@@ -96,13 +96,13 @@ class BroadcastListener {
 
             if (broadcast.startsWith("OpenMic")) {
                 // We got OpenMic broadcast packet
-                Log.d(javaClass.name, "Got OpenMic broadcast packet! Parsing...")
+                Log.d(javaClass.name, "handleBroadcasts: Got OpenMic broadcast packet! Parsing...")
                 Log.d(javaClass.name, broadcast)
             }
         }
 
         Log.d(javaClass.name, "Finished Broadcast Thread.")
 
-        isRunning = false;
+        isRunning = false
     }
 }
