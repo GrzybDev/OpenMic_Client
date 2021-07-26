@@ -12,10 +12,12 @@
     <string name="main_status_main">We\'ll try to automatically connect with your PC via:</string>
     <string name="main_status_wifi">Network (Wireless)</string>
     <string name="main_status_usb">USB (Wired)</string>
-    <string name="main_status_wifi_enabled">Looking for devices…</string>
+    <string name="main_status_wifi_enabled">Looking for servers…</string>
+    <string name="main_status_wifi_no_location">Disabled, no permission to use location</string>
     <string name="main_status_wifi_disabled">Not connected to Wi-Fi network</string>
-    <string name="main_status_usb_connected">Cannot find the server</string>
+    <string name="main_status_usb_connected">Connected, Cannot find the server</string>
     <string name="main_status_usb_disconnected">Not connected to PC</string>
+    <string name="main_status_usb_not_available">USB connection is not available</string>
     <string name="main_page_faq_title">What to do next?</string>
     <string name="main_page_faq">Next steps are done mainly on PC, you can follow tutorial on official site:</string>
     <string name="main_page_btn_tutorial">Tutorial</string>
