@@ -52,10 +52,11 @@
             android:layout_height="150dp"
             android:contentDescription="@string/icons_main_pc_connected"
             app:srcCompat="@drawable/ic_baseline_computer_24" />
+
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/statusLayout"
+        android:id="@+id/statusContainer"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
@@ -77,71 +78,77 @@
             android:text="@string/main_status_main"
             android:textAppearance="@style/TextAppearance.AppCompat.Body2" />
 
-        <LinearLayout
-            android:id="@+id/statusWifiLayout"
+        <TableLayout
+            android:id="@+id/statusLayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_height="match_parent">
 
-            <ImageView
-                android:id="@+id/statusWifiIcon"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
-                android:layout_weight="1"
-                android:contentDescription="@string/icons_status_wifi"
-                app:srcCompat="@drawable/ic_baseline_wifi_24" />
+            <TableRow
+                android:id="@+id/statusWifiLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
-            <TextView
-                android:id="@+id/statusWifiName"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:text="@string/main_status_wifi"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+                <ImageView
+                    android:id="@+id/statusWifiIcon"
+                    android:layout_width="64dp"
+                    android:layout_height="64dp"
+                    android:layout_weight="1"
+                    android:contentDescription="@string/icons_status_wifi"
+                    app:srcCompat="@drawable/ic_baseline_wifi_24" />
 
-            <TextView
-                android:id="@+id/statusWifi"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:text="@string/main_status_wifi_disabled"
-                android:textColor="@color/main_status_not_connected" />
-        </LinearLayout>
+                <TextView
+                    android:id="@+id/statusWifiName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="@string/main_status_wifi"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
-        <LinearLayout
-            android:id="@+id/statusUSBLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/statusWifi"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="@string/main_status_wifi_disabled"
+                    android:textColor="@color/main_status_not_connected" />
+            </TableRow>
 
-            <ImageView
-                android:id="@+id/statusUSBIcon"
-                android:layout_width="wrap_content"
-                android:layout_height="64dp"
-                android:layout_weight="1"
-                android:contentDescription="@string/icons_status_usb"
-                app:srcCompat="@drawable/ic_baseline_usb_24" />
+            <TableRow
+                android:id="@+id/statusUSBLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
-            <TextView
-                android:id="@+id/statusUSBName"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:text="@string/main_status_usb"
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+                <ImageView
+                    android:id="@+id/statusUSBIcon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="64dp"
+                    android:layout_weight="1"
+                    android:contentDescription="@string/icons_status_usb"
+                    app:srcCompat="@drawable/ic_baseline_usb_24" />
 
-            <TextView
-                android:id="@+id/statusUSB"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:text="@string/main_status_usb_disconnected"
-                android:textColor="@color/main_status_not_connected" />
-        </LinearLayout>
+                <TextView
+                    android:id="@+id/statusUSBName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="@string/main_status_usb"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+
+                <TextView
+                    android:id="@+id/statusUSB"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:text="@string/main_status_usb_disconnected"
+                    android:textColor="@color/main_status_not_connected" />
+            </TableRow>
+
+        </TableLayout>
+
     </LinearLayout>
 
     <LinearLayout
@@ -156,7 +163,7 @@
         android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/statusLayout">
+        app:layout_constraintTop_toBottomOf="@+id/statusContainer">
 
         <TextView
             android:id="@+id/descriptionFaqTitle"
