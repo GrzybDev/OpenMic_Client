@@ -17,6 +17,7 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentContainerView
+import com.google.android.gms.ads.MobileAds
 import com.google.firebase.analytics.FirebaseAnalytics
 import pl.grzybdev.openmic.client.R
 import pl.grzybdev.openmic.client.activities.fragments.main.MainScreen
@@ -52,6 +53,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         mFirebaseAnalytics = FirebaseAnalytics.getInstance(this)
+        MobileAds.initialize(this) {}
+
         fragmentContainer = findViewById(R.id.fragmentContainer)
     }
 
@@ -59,6 +62,7 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
 
         Log.d(javaClass.name, "onResume: App is in foreground again")
+        Log.d(javaClass.name, "onResume: Enabling WiFi and USB listeners...")
 
         initWifiListener()
         initUSBListener()
@@ -70,28 +74,28 @@ class MainActivity : AppCompatActivity() {
         Log.d(javaClass.name, "onPause: App is not in foreground anymore")
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && this::connectivityManager.isInitialized) {
-            Log.d(javaClass.name, "Unregistering connectivityManagerCallback...")
+            Log.d(javaClass.name, "onPause: Unregistering connectivityManagerCallback...")
             connectivityManager.unregisterNetworkCallback(connectivityManagerCallback)
-            Log.d(javaClass.name, "Successfully unregistered connectivityManagerCallback!")
+            Log.d(javaClass.name, "onPause: Successfully unregistered connectivityManagerCallback!")
         }
 
         try {
-            Log.d(javaClass.name, "Unregistering networkReceiver...")
+            Log.d(javaClass.name, "onPause: Unregistering networkReceiver...")
             unregisterReceiver(networkReceiver)
-            Log.d(javaClass.name, "Successfully unregistered networkReceiver!")
+            Log.d(javaClass.name, "onPause: Successfully unregistered networkReceiver!")
         } catch (e: IllegalArgumentException) {
-            Log.w(javaClass.name, "Cannot unregister networkReceiver, because it's not registered!")
+            Log.w(javaClass.name, "onPause: Cannot unregister networkReceiver, because it's not registered!")
         }
 
         try {
-            Log.d(javaClass.name, "Unregistering batteryStatusReceiver...")
+            Log.d(javaClass.name, "onPause: Unregistering batteryStatusReceiver...")
             unregisterReceiver(batteryStatusReceiver)
-            Log.d(javaClass.name, "Successfully unregistered batteryStatusReceiver!")
+            Log.d(javaClass.name, "onPause: Successfully unregistered batteryStatusReceiver!")
         } catch (e: IllegalArgumentException) {
-            Log.w(javaClass.name, "Cannot unregister batteryStatusReceiver, because it's not registered!")
+            Log.w(javaClass.name, "onPause: Cannot unregister batteryStatusReceiver, because it's not registered!")
         }
 
-        Log.d(javaClass.name, "Updating listener statuses...")
+        Log.d(javaClass.name, "onPause: Disabling WiFi and USB listeners...")
 
         updateStatus(ConnectionType.WiFi, false)
         updateStatus(ConnectionType.USB, false)
@@ -224,15 +228,16 @@ class MainActivity : AppCompatActivity() {
         Log.d(javaClass.name, "updateStatus: $type is now ${if (isConnected) "enabled" else "disabled"}")
 
         val mainScreen: MainScreen = supportFragmentManager.findFragmentById(R.id.fragmentContainer) as MainScreen
-        mainScreen.updateListenerStatus(type, isConnected)
 
         if (type == ConnectionType.WiFi) {
             if (isConnected) {
-                broadcastListener.startListening(49153, this)
+                broadcastListener.startListening(49152, this)
             } else {
                 broadcastListener.stopListening()
             }
         }
+
+        mainScreen.updateListenerStatus(type, isConnected)
     }
 
 }

@@ -18,6 +18,7 @@
     <string name="main_status_usb_connected">Connected, Cannot find the server</string>
     <string name="main_status_usb_disconnected">Not connected to PC</string>
     <string name="main_status_usb_not_available">USB connection is not available</string>
+    <string name="main_status_restarting">Restarting…</string>
     <string name="main_page_faq_title">What to do next?</string>
     <string name="main_page_faq">Next steps are done mainly on PC, you can follow tutorial on official site:</string>
     <string name="main_page_btn_tutorial">Tutorial</string>

@@ -1,5 +1,6 @@
 package pl.grzybdev.openmic.client.activities.fragments.main
 
+import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -11,17 +12,18 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
-import com.google.android.gms.ads.MobileAds
 import pl.grzybdev.openmic.client.R
 import pl.grzybdev.openmic.client.enums.ConnectionType
 
 
 class MainScreen : Fragment() {
 
-    private val adViews: MutableList<Int> = mutableListOf(
-        R.id.adView_Top,
-        R.id.adView_Bottom
+    private val adViewsPortrait: MutableList<Int> = mutableListOf(
+        R.id.adView_Main_Top,
+        R.id.adView_Main_Bottom
     )
+
+    private val adViewsLand: MutableList<Int> = mutableListOf(R.id.adView_Main_Big)
 
     private lateinit var wifiStatus: TextView
     private lateinit var usbStatus: TextView
@@ -48,6 +50,13 @@ class MainScreen : Fragment() {
         initAds()
     }
 
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+
+        Log.d(javaClass.name, "onConfigurationChanged")
+        initAds()
+    }
+
     private fun initViews() {
         Log.d(javaClass.name, "initViews: Initializing views...")
 
@@ -56,9 +65,14 @@ class MainScreen : Fragment() {
     }
 
     private fun initAds() {
-        Log.d(javaClass.name, "initAds: Initializing ads...")
+        Log.d(javaClass.name, "initAds: Reloading ads in MainScreen...")
 
-        MobileAds.initialize(requireContext()) {}
+        val orientation = this.resources.configuration.orientation
+        val adViews: List<Int> = if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+            adViewsPortrait
+        } else {
+            adViewsLand
+        }
 
         adViews.forEach { adViewID ->
 
@@ -136,6 +150,23 @@ class MainScreen : Fragment() {
             }
 
             wifiStatus.text = getString(R.string.main_status_wifi_no_location)
+        }
+    }
+
+    fun setWifiRestarting() {
+        requireActivity().runOnUiThread {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                wifiStatus.setTextColor(requireContext().getColor(R.color.main_status_disabled))
+            } else {
+                wifiStatus.setTextColor(
+                    ContextCompat.getColor(
+                        requireContext(),
+                        R.color.main_status_disabled
+                    )
+                )
+            }
+
+            wifiStatus.text = getString(R.string.main_status_restarting)
         }
     }
 }

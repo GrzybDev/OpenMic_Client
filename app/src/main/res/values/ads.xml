@@ -2,4 +2,5 @@
 <resources>
     <string name="banner_main_top_unit_id">ca-app-pub-9830507899812507/9460328831</string>
     <string name="banner_main_bottom_unit_id">ca-app-pub-9830507899812507/7955675474</string>
+    <string name="banner_main_big_unit_id">ca-app-pub-9830507899812507/5114600159</string>
 </resources>
