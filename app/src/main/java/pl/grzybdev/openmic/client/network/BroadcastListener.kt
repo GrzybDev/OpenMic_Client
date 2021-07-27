@@ -5,7 +5,9 @@ import android.net.wifi.WifiManager
 import android.util.Log
 import java.io.IOException
 import java.net.*
+import java.util.zip.DataFormatException
 import kotlin.concurrent.thread
+import kotlin.properties.Delegates
 
 
 class BroadcastListener {
@@ -15,18 +17,22 @@ class BroadcastListener {
     private lateinit var broadcastSocket: DatagramSocket
     private lateinit var broadcastThread: Thread
 
+    private var broadcastPort by Delegates.notNull<Int>()
     private lateinit var context: Context
 
     fun startListening(port: Int, context: Context): Boolean {
         if (isRunning) throw IllegalStateException("startListening: BroadcastListener is already listening, cannot start!")
 
+        this.broadcastPort = port
         this.context = context
 
         Log.d(javaClass.name, "startListening: Starting Broadcast Thread...")
 
         try {
             if (!this::broadcastSocket.isInitialized) {
-                broadcastSocket = DatagramSocket(port, getBroadcastAddress())
+                val address: InetAddress = getBroadcastAddress() ?: return false
+
+                broadcastSocket = DatagramSocket(broadcastPort, address)
                 broadcastSocket.broadcast = true
                 broadcastSocket.soTimeout = 1000
             }
@@ -46,28 +52,12 @@ class BroadcastListener {
 
         Log.d(javaClass.name, "stopListening: Interrupting broadcast thread...")
         broadcastThread.interrupt()
-    }
 
-    private fun getBroadcastAddress(): InetAddress? {
-        val wifiMgr =
-            context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-        val dhcp = wifiMgr.dhcpInfo
-
-        val inetAddress = InetAddress.getByAddress(getIPBytes(dhcp.ipAddress))
-        val networkInterface: NetworkInterface = NetworkInterface.getByInetAddress(inetAddress)
-            ?: return null
-
-        for (address in networkInterface.interfaceAddresses) {
-            if (address.broadcast != null) return address.broadcast
+        try {
+            broadcastThread.join()
+        } catch (e: InterruptedException) {
+            Log.d(javaClass.name, "stopListening: Error when tried to join broadcastThread ($e)")
         }
-
-        return null
-    }
-
-    private fun getIPBytes(value: Int): ByteArray {
-        val quads = ByteArray(4)
-        for (k in 0..3) quads[k] = (value shr k * 8).toByte()
-        return quads
     }
 
     private fun handleBroadcasts() {
@@ -92,17 +82,37 @@ class BroadcastListener {
                 Log.e(javaClass.name, e.toString())
             }
 
-            val broadcast = String(receivePacket.data)
-
-            if (broadcast.startsWith("OpenMic")) {
-                // We got OpenMic broadcast packet
-                Log.d(javaClass.name, "handleBroadcasts: Got OpenMic broadcast packet! Parsing...")
-                Log.d(javaClass.name, broadcast)
+            try {
+                Packet.getPacket(receivePacket.data, receivePacket.length)
+            } catch (e: DataFormatException) {
+                // Ignore corrupted packet
+                Log.w(javaClass.name, "Failed to parse packet ($e), ignoring...")
             }
         }
 
         Log.d(javaClass.name, "Finished Broadcast Thread.")
-
         isRunning = false
+    }
+
+    private fun getBroadcastAddress(): InetAddress? {
+        val wifiMgr =
+            context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+        val dhcp = wifiMgr.dhcpInfo
+
+        val inetAddress = InetAddress.getByAddress(getIPBytes(dhcp.ipAddress))
+        val networkInterface: NetworkInterface = NetworkInterface.getByInetAddress(inetAddress)
+            ?: return null
+
+        for (address in networkInterface.interfaceAddresses) {
+            if (address.broadcast != null) return address.broadcast
+        }
+
+        return null
+    }
+
+    private fun getIPBytes(value: Int): ByteArray {
+        val quads = ByteArray(4)
+        for (k in 0..3) quads[k] = (value shr k * 8).toByte()
+        return quads
     }
 }
