@@ -2,13 +2,39 @@ package pl.grzybdev.openmic.client
 
 import android.util.Base64
 import com.google.common.io.BaseEncoding
+import java.io.ByteArrayOutputStream
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
+import java.util.zip.Inflater
 
 
 class Helper {
 
     companion object {
+
+        fun qUncompress(input: ByteArray): ByteArray {
+            val inflater = Inflater()
+            inflater.setInput(input, 4,input.size - 4) //Strip off the first 4 bytes - this is a non standard uncompressed size that qCompress adds.
+
+            val outputStream = ByteArrayOutputStream(input.size)
+            val buffer = ByteArray(4096)
+
+            while (!inflater.finished()) {
+                val count: Int = inflater.inflate(buffer)
+                outputStream.write(buffer, 0, count)
+            }
+
+            outputStream.close()
+            return outputStream.toByteArray()
+        }
+
+        fun verifyMD5(expected: String, data: ByteArray): Boolean {
+            val expectedCRC = BaseEncoding.base16().lowerCase().encode(Base64.decode(expected, Base64.DEFAULT))
+            val calculatedCRC = calculateMD5(data)
+
+            return expectedCRC == calculatedCRC
+        }
+
         fun calculateMD5(data: ByteArray): String {
             try {
                 // Create Md5 Hash
@@ -38,13 +64,6 @@ class Helper {
             }
 
             return ""
-        }
-
-        fun verifyMD5(expected: String, data: ByteArray): Boolean {
-            val expectedCRC = BaseEncoding.base16().lowerCase().encode(Base64.decode(expected, Base64.DEFAULT))
-            val calculatedCRC = calculateMD5(data)
-
-            return expectedCRC == calculatedCRC
         }
     }
 }
