@@ -3,6 +3,7 @@ package pl.grzybdev.openmic.client.network
 import android.content.Context
 import android.net.wifi.WifiManager
 import android.util.Log
+import pl.grzybdev.openmic.client.dataclasses.packets.BroadcastPacket
 import java.io.IOException
 import java.net.*
 import java.util.zip.DataFormatException
@@ -73,7 +74,7 @@ class BroadcastListener {
             val receivedPacket = DatagramPacket(ByteArray(DEFAULT_BUFFER_SIZE), DEFAULT_BUFFER_SIZE)
 
             try {
-                broadcastSocket.receive(receivePacket)
+                broadcastSocket.receive(receivedPacket)
             } catch (e: SocketTimeoutException) {
                 // Do nothing
             } catch (e: IOException) {
@@ -81,14 +82,21 @@ class BroadcastListener {
             }
 
             try {
-                Packet.getPacket(receivePacket.data, receivePacket.length)
+                val packet = Packet.getPacket(receivedPacket.data, receivedPacket.length)
+
+                when (packet) {
+                    is BroadcastPacket -> {
+                        Log.d(javaClass.name, "handleBroadcasts: Handling broadcast packet...")
+                    }
+                    else -> Log.w(javaClass.name, "handleBroadcasts: Received broadcast with valid OpenMic packet, but it's not valid type for Broadcast Listener, ignoring...")
+                }
             } catch (e: DataFormatException) {
                 // Ignore corrupted packet
-                Log.w(javaClass.name, "Failed to parse packet ($e), ignoring...")
+                Log.w(javaClass.name, "handleBroadcasts: Failed to parse packet ($e), ignoring...")
             }
         }
 
-        Log.d(javaClass.name, "Finished Broadcast Thread.")
+        Log.d(javaClass.name, "handleBroadcasts: Finished Broadcast Thread.")
         isRunning = false
     }
 
