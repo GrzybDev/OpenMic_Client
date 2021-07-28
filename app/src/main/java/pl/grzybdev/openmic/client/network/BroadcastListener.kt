@@ -70,8 +70,7 @@ class BroadcastListener {
         while (!broadcastThread.isInterrupted) {
             Log.d(javaClass.name, "handleBroadcasts: Waiting for broadcast packet...")
 
-            val receiveData = ByteArray(1024)
-            val receivePacket = DatagramPacket(receiveData, receiveData.size)
+            val receivedPacket = DatagramPacket(ByteArray(DEFAULT_BUFFER_SIZE), DEFAULT_BUFFER_SIZE)
 
             try {
                 broadcastSocket.receive(receivePacket)
