@@ -34,7 +34,6 @@ class BroadcastListener {
 
                 broadcastSocket = DatagramSocket(broadcastPort, address)
                 broadcastSocket.broadcast = true
-                broadcastSocket.soTimeout = 1000
             }
         } catch (e: IOException) {
             Log.e(javaClass.name, e.toString())
