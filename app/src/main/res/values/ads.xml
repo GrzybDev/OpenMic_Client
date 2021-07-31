@@ -3,4 +3,7 @@
     <string name="banner_main_top_unit_id">ca-app-pub-9830507899812507/9460328831</string>
     <string name="banner_main_bottom_unit_id">ca-app-pub-9830507899812507/7955675474</string>
     <string name="banner_main_big_unit_id">ca-app-pub-9830507899812507/5114600159</string>
+    <string name="banner_device_list_portrait">ca-app-pub-9830507899812507/2628193143</string>
+    <string name="banner_device_list_landscape_top">ca-app-pub-9830507899812507/8810458119</string>
+    <string name="banner_device_list_landscape_bottom">ca-app-pub-9830507899812507/5665420024</string>
 </resources>
