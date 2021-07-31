@@ -1,4 +1,4 @@
-package pl.grzybdev.openmic.client
+package pl.grzybdev.openmic.client.tools
 
 import android.util.Base64
 import com.google.common.io.BaseEncoding
