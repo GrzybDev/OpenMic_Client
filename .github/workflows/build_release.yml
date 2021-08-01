@@ -32,10 +32,13 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      - name: Build
-        uses: vgaidarji/android-github-actions-build@v1.0.1
+      - name: Setup JDK
+        uses: actions/setup-java@v1
         with:
-          args: ${{ matrix.gradle_arg }}
+          java-version: 11
+
+      - name: Build
+        run: ${{ matrix.gradle_arg }}
       
       - name: Move output to final destination
         run: |
