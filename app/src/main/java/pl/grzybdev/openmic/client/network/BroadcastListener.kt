@@ -3,7 +3,9 @@ package pl.grzybdev.openmic.client.network
 import android.content.Context
 import android.net.wifi.WifiManager
 import android.util.Log
+import pl.grzybdev.openmic.client.activities.MainActivity
 import pl.grzybdev.openmic.client.dataclasses.packets.BroadcastPacket
+import pl.grzybdev.openmic.client.interfaces.IBroadcast
 import java.io.IOException
 import java.net.*
 import java.util.zip.DataFormatException
@@ -22,7 +24,7 @@ class BroadcastListener {
     private lateinit var context: Context
 
     fun startListening(port: Int, context: Context): Boolean {
-        if (isRunning) throw IllegalStateException("startListening: BroadcastListener is already listening, cannot start!")
+        if (isRunning) return true
 
         this.broadcastPort = port
         this.context = context
@@ -48,7 +50,7 @@ class BroadcastListener {
     }
 
     fun stopListening() {
-        if (!isRunning) throw IllegalStateException("stopListening: BroadcastListener is not listening, cannot stop!")
+        if (!isRunning) return
 
         Log.d(javaClass.name, "stopListening: Interrupting broadcast thread...")
         broadcastThread.interrupt()
@@ -85,10 +87,7 @@ class BroadcastListener {
                 val packet = Packet.getPacket(receivedPacket.data, receivedPacket.length)
 
                 when (packet) {
-                    is BroadcastPacket -> {
-                        Log.d(javaClass.name, "handleBroadcasts: Handling broadcast packet...")
-                    }
-                    else -> Log.w(javaClass.name, "handleBroadcasts: Received broadcast with valid OpenMic packet, but it's not valid type for Broadcast Listener, ignoring...")
+                    is BroadcastPacket -> (context as MainActivity).OnDeviceFound(packet)
                 }
             } catch (e: DataFormatException) {
                 // Ignore corrupted packet
