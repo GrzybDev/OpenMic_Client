@@ -19,14 +19,14 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
-            android:id="@+id/pageTitle"
+            android:id="@+id/mainScreen_pageTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/main_page_title"
             android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
 
         <LinearLayout
-            android:id="@+id/iconsLayout"
+            android:id="@+id/mainScreen_iconsLayout"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_marginStart="8dp"
