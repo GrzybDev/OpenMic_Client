@@ -16,27 +16,23 @@ import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.FragmentContainerView
-import com.google.android.gms.ads.MobileAds
-import com.google.firebase.analytics.FirebaseAnalytics
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentTransaction
+import pl.grzybdev.openmic.client.OpenMic
 import pl.grzybdev.openmic.client.R
+import pl.grzybdev.openmic.client.activities.fragments.main.DevicesList
 import pl.grzybdev.openmic.client.activities.fragments.main.MainScreen
+import pl.grzybdev.openmic.client.dataclasses.packets.BroadcastPacket
 import pl.grzybdev.openmic.client.enums.ConnectionType
-import pl.grzybdev.openmic.client.network.BroadcastListener
+import pl.grzybdev.openmic.client.interfaces.IBroadcast
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), IBroadcast {
 
     companion object {
         const val WIFI_STATE_PERMISSION = "android.permission.ACCESS_FINE_LOCATION"
         const val WIFI_CHECK_INTENT = "android.net.conn.CONNECTIVITY_CHANGE"
     }
-
-    private val broadcastListener: BroadcastListener = BroadcastListener()
-
-    private lateinit var fragmentContainer: FragmentContainerView
-
-    private lateinit var mFirebaseAnalytics: FirebaseAnalytics
 
     private lateinit var connectivityManager: ConnectivityManager
     private lateinit var connectivityManagerCallback: ConnectivityManager.NetworkCallback
@@ -44,6 +40,7 @@ class MainActivity : AppCompatActivity() {
 
     private var wifiLastStatus: Boolean = false
     private var usbLastStatus: Boolean = false
+    private var isOnMainScreen: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,11 +48,7 @@ class MainActivity : AppCompatActivity() {
         Log.d(javaClass.name, "onCreate: MainActivity has been created")
 
         setContentView(R.layout.activity_main)
-
-        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this)
-        MobileAds.initialize(this) {}
-
-        fragmentContainer = findViewById(R.id.fragmentContainer)
+        changeFragment(MainScreen())
     }
 
     override fun onResume() {
@@ -125,8 +118,10 @@ class MainActivity : AppCompatActivity() {
         ) {
             Log.d(javaClass.name, "initWifiListener: Disabling WiFi, because we don't have access to device location...")
 
-            val mainScreen: MainScreen = supportFragmentManager.findFragmentById(R.id.fragmentContainer) as MainScreen
-            mainScreen.setWifiDisabled()
+            if (isOnMainScreen) {
+                val mainScreen: MainScreen = supportFragmentManager.findFragmentById(R.id.fragmentContainer) as MainScreen
+                mainScreen.setWifiDisabled()
+            }
 
             return
         }
@@ -227,17 +222,40 @@ class MainActivity : AppCompatActivity() {
 
         Log.d(javaClass.name, "updateStatus: $type is now ${if (isConnected) "enabled" else "disabled"}")
 
-        val mainScreen: MainScreen = supportFragmentManager.findFragmentById(R.id.fragmentContainer) as MainScreen
-
         if (type == ConnectionType.WiFi) {
             if (isConnected) {
-                broadcastListener.startListening(49152, this)
+                OpenMic.app.broadcastListener.startListening(49152, this)
             } else {
-                broadcastListener.stopListening()
+                OpenMic.app.broadcastListener.stopListening()
             }
         }
 
-        mainScreen.updateListenerStatus(type, isConnected)
+        if (isOnMainScreen) {
+            val mainScreen: MainScreen = supportFragmentManager.findFragmentById(R.id.fragmentContainer) as MainScreen
+            mainScreen.updateListenerStatus(type, isConnected)
+        }
+    }
+
+    private fun changeFragment(newFragment: Fragment) {
+        isOnMainScreen = when (newFragment) {
+            is MainScreen -> true
+            else -> false
+        }
+
+        // Create new fragment and transaction
+        val transaction: FragmentTransaction = supportFragmentManager.beginTransaction()
+
+        // Replace whatever is in the fragment_container view with this fragment,
+        // and add the transaction to the back stack if needed
+        transaction.replace(R.id.fragmentContainer, newFragment)
+        transaction.addToBackStack(null)
+
+        // Commit the transaction
+        transaction.commit()
+    }
+
+    override fun OnDeviceFound(serverInfo: BroadcastPacket) {
+        changeFragment(DevicesList())
     }
 
 }
