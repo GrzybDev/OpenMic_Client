@@ -6,6 +6,7 @@
     <string name="icons_main_pc_connected">Computer Icon</string>
     <string name="icons_status_wifi">Wi-Fi Icon</string>
     <string name="icons_status_usb">USB Icon</string>
+    <string name="icons_server_os">Operating System Icon</string>
 
     <!-- Main Activity -->
     <string name="main_page_title">You\'re ready to go!</string>
@@ -26,4 +27,5 @@
     <!-- Device List -->
     <string name="device_list_title">Select device to connect</string>
     <string name="device_list_desc">We have found following devices running OpenMic Server:</string>
+    <string name="device_list_connect">Connect</string>
 </resources>
