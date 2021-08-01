@@ -1,4 +1,4 @@
-package pl.grzybdev.openmic.client.enums.managers
+package pl.grzybdev.openmic.client.enums.manager
 
 enum class ConnectionType {
     WiFi,
