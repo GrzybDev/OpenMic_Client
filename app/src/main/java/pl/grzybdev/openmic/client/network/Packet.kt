@@ -5,7 +5,7 @@ import android.util.Log
 import com.google.common.primitives.Ints
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-import pl.grzybdev.openmic.client.Helper
+import pl.grzybdev.openmic.client.tools.Helper
 import pl.grzybdev.openmic.client.dataclasses.packets.BroadcastPacket
 import pl.grzybdev.openmic.client.dataclasses.packets.TransportPacket
 import pl.grzybdev.openmic.client.enums.PacketType
