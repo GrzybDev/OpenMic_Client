@@ -19,7 +19,7 @@
         ads:adUnitId="@string/banner_main_top_unit_id" />
 
     <TextView
-        android:id="@+id/pageTitle"
+        android:id="@+id/mainScreen_pageTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
@@ -30,14 +30,14 @@
         app:layout_constraintTop_toBottomOf="@+id/adView_Main_Top" />
 
     <LinearLayout
-        android:id="@+id/iconsLayout"
+        android:id="@+id/mainScreen_iconsLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="24dp"
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/pageTitle">
+        app:layout_constraintTop_toBottomOf="@+id/mainScreen_pageTitle">
 
         <ImageView
             android:id="@+id/ic_phone_ring"
@@ -67,7 +67,7 @@
         android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/iconsLayout">
+        app:layout_constraintTop_toBottomOf="@+id/mainScreen_iconsLayout">
 
         <TextView
             android:id="@+id/statusTitle"
@@ -208,15 +208,15 @@
     </LinearLayout>
 
     <com.google.android.gms.ads.AdView
-        xmlns:ads="http://schemas.android.com/apk/res-auto"
         android:id="@+id/adView_Main_Bottom"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        app:adSize="BANNER"
+        app:adUnitId="@string/banner_main_bottom_unit_id"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/descriptionLayout"
-        ads:adSize="BANNER"
-        ads:adUnitId="@string/banner_main_bottom_unit_id" />
+        app:layout_constraintTop_toBottomOf="@+id/descriptionLayout" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
