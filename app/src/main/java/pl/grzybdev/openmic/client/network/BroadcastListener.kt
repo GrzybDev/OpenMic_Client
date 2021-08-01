@@ -5,7 +5,7 @@ import android.net.wifi.WifiManager
 import android.util.Log
 import pl.grzybdev.openmic.client.activities.MainActivity
 import pl.grzybdev.openmic.client.dataclasses.packets.BroadcastPacket
-import pl.grzybdev.openmic.client.interfaces.IBroadcast
+import pl.grzybdev.openmic.client.enums.manager.ConnectionType
 import java.io.IOException
 import java.net.*
 import java.util.zip.DataFormatException
@@ -84,10 +84,8 @@ class BroadcastListener {
             }
 
             try {
-                val packet = Packet.getPacket(receivedPacket.data, receivedPacket.length)
-
-                when (packet) {
-                    is BroadcastPacket -> (context as MainActivity).OnDeviceFound(packet)
+                when (val packet = Packet.getPacket(receivedPacket.data, receivedPacket.length)) {
+                    is BroadcastPacket -> (context as MainActivity).onDeviceDiscovered(ConnectionType.WiFi, packet)
                 }
             } catch (e: DataFormatException) {
                 // Ignore corrupted packet
@@ -100,8 +98,7 @@ class BroadcastListener {
     }
 
     private fun getBroadcastAddress(): InetAddress? {
-        val wifiMgr =
-            context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
+        val wifiMgr = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
         val dhcp = wifiMgr.dhcpInfo
 
         val inetAddress = InetAddress.getByAddress(getIPBytes(dhcp.ipAddress))
