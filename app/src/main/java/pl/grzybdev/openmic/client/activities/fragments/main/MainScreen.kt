@@ -153,20 +153,4 @@ class MainScreen : Fragment() {
         }
     }
 
-    fun setWifiRestarting() {
-        requireActivity().runOnUiThread {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                wifiStatus.setTextColor(requireContext().getColor(R.color.main_status_disabled))
-            } else {
-                wifiStatus.setTextColor(
-                    ContextCompat.getColor(
-                        requireContext(),
-                        R.color.main_status_disabled
-                    )
-                )
-            }
-
-            wifiStatus.text = getString(R.string.main_status_restarting)
-        }
-    }
 }
