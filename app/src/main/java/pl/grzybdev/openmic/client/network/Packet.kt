@@ -8,7 +8,7 @@ import kotlinx.serialization.json.Json
 import pl.grzybdev.openmic.client.tools.Helper
 import pl.grzybdev.openmic.client.dataclasses.packets.BroadcastPacket
 import pl.grzybdev.openmic.client.dataclasses.packets.TransportPacket
-import pl.grzybdev.openmic.client.enums.PacketType
+import pl.grzybdev.openmic.client.enums.network.PacketType
 import java.util.zip.DataFormatException
 
 
