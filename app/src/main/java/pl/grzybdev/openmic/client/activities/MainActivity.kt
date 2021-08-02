@@ -20,6 +20,8 @@ import pl.grzybdev.openmic.client.managers.connectors.WifiManager
 
 class MainActivity : AppCompatActivity(), ManagerInterface {
 
+    private var currentFragment: MainFragment = MainFragment.None
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -51,8 +53,12 @@ class MainActivity : AppCompatActivity(), ManagerInterface {
         }
     }
 
-    private fun changeFragment(newFragment: MainFragment) {
+    fun changeFragment(newFragment: MainFragment) {
+        if (newFragment == currentFragment) return
+        else currentFragment = newFragment
+
         val fragment: Fragment = when (newFragment) {
+            MainFragment.None -> return
             MainFragment.MainScreen -> MainScreen()
             MainFragment.DevicesList -> DevicesList()
         }
