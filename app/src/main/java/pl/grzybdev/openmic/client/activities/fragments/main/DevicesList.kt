@@ -15,6 +15,10 @@ import pl.grzybdev.openmic.client.adapters.DeviceListAdapter
 import pl.grzybdev.openmic.client.enums.manager.ConnectionType
 import pl.grzybdev.openmic.client.interfaces.ui.FragmentInterface
 import pl.grzybdev.openmic.client.managers.BaseManager
+import pl.grzybdev.openmic.client.managers.connectors.WifiManager
+import androidx.recyclerview.widget.DividerItemDecoration
+import java.lang.NullPointerException
+
 
 class DevicesList : Fragment(), FragmentInterface {
 
@@ -24,7 +28,7 @@ class DevicesList : Fragment(), FragmentInterface {
         get() = listOf(R.id.adView_devicesList_land_top)
 
     private lateinit var devicesList: RecyclerView
-    private lateinit var deviceListAdapter: DeviceListAdapter
+    lateinit var deviceListAdapter: DeviceListAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -47,17 +51,32 @@ class DevicesList : Fragment(), FragmentInterface {
         super.onConfigurationChanged(newConfig)
 
         Log.d(javaClass.name, "onConfigurationChanged: Reloading ads...")
-        initAds(this)
+
+        try {
+            initAds(this)
+        }
+        catch (e: NullPointerException) {
+            Log.e(javaClass.name, e.toString())
+        }
     }
 
     override fun initViews() {
         devicesList = requireView().findViewById(R.id.devicesList)
 
         val manager: BaseManager = (requireActivity().application as OpenMic).connectionManagers[ConnectionType.WiFi]!!
+        (manager as WifiManager).registerDeviceListContext(this)
+
         deviceListAdapter = DeviceListAdapter(requireContext(), manager.discoveredDevices)
 
         devicesList.adapter = deviceListAdapter
         devicesList.layoutManager = LinearLayoutManager(requireContext())
+
+        val dividerItemDecoration = DividerItemDecoration(
+            devicesList.context,
+            (devicesList.layoutManager as LinearLayoutManager).orientation
+        )
+
+        devicesList.addItemDecoration(dividerItemDecoration)
     }
 
 }
