@@ -28,4 +28,14 @@
     <string name="device_list_title">Select device to connect</string>
     <string name="device_list_desc">We have found following devices running OpenMic Server:</string>
     <string name="device_list_connect">Connect</string>
+
+    <!-- Device Info -->
+    <string name="device_info_app_official">Official OpenMic Server</string>
+    <string name="device_info_app_version_ok">Latest</string>
+    <string name="device_info_app_version_update_available">Not latest</string>
+    <string name="device_info_app_version_outdated">Outdated</string>
+    <string name="device_info_app_version_future">Future</string>
+    <string name="device_info_app_version">%1$s version (%2$s)</string>
+    <string name="device_info_trust">%1$s / %2$s</string>
+    <string name="device_info_trust_not_trusted">Not trusted</string>
 </resources>
