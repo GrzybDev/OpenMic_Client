@@ -14,6 +14,7 @@ import pl.grzybdev.openmic.client.enums.manager.ConnectionType
 import pl.grzybdev.openmic.client.enums.manager.ManagerStatus
 import pl.grzybdev.openmic.client.enums.ui.MainFragment
 import pl.grzybdev.openmic.client.interfaces.manager.ManagerInterface
+import pl.grzybdev.openmic.client.managers.BaseManager
 import pl.grzybdev.openmic.client.managers.connectors.USBManager
 import pl.grzybdev.openmic.client.managers.connectors.WifiManager
 
@@ -102,11 +103,12 @@ class MainActivity : AppCompatActivity(), ManagerInterface {
     }
 
     override fun onDeviceDiscovered(type: ConnectionType, data: BroadcastPacket) {
-        //val manager: BaseManager = (application as OpenMic).connectionManagers[ConnectionType.WiFi]!!
+        val manager: BaseManager = (application as OpenMic).connectionManagers[type]!!
 
         when (type) {
             ConnectionType.WiFi -> {
                 changeFragment(MainFragment.DevicesList)
+                (manager as WifiManager).addDevice(data)
             }
             ConnectionType.USB -> {
 
