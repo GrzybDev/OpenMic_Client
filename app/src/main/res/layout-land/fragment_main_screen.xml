@@ -190,7 +190,8 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="12dp"
                 android:layout_weight="1"
-                android:text="@string/main_page_btn_tutorial" />
+                android:text="@string/main_page_btn_tutorial"
+                android:textColor="@color/button_borderless_text" />
 
             <Button
                 android:id="@+id/faqBtn"
@@ -199,7 +200,8 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="12dp"
                 android:layout_weight="1"
-                android:text="@string/main_page_btn_faq" />
+                android:text="@string/main_page_btn_faq"
+                android:textColor="@color/button_borderless_text"/>
         </LinearLayout>
 
     </LinearLayout>

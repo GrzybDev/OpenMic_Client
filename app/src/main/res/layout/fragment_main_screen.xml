@@ -188,21 +188,23 @@
 
             <Button
                 android:id="@+id/tutorialBtn"
+                style="?android:attr/buttonBarButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="12dp"
                 android:layout_weight="1"
                 android:text="@string/main_page_btn_tutorial"
-                style="?android:attr/buttonBarButtonStyle" />
+                android:textColor="@color/button_borderless_text" />
 
             <Button
                 android:id="@+id/faqBtn"
+                style="?android:attr/buttonBarButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="12dp"
                 android:layout_weight="1"
                 android:text="@string/main_page_btn_faq"
-                style="?android:attr/buttonBarButtonStyle" />
+                android:textColor="@color/button_borderless_text" />
         </LinearLayout>
 
     </LinearLayout>
