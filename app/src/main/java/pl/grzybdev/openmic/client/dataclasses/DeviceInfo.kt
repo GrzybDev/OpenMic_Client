@@ -3,4 +3,4 @@ package pl.grzybdev.openmic.client.dataclasses
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class ServerInfo(val AppID: String, val Version: String)
+data class DeviceInfo(val DeviceID: String, val KernelType: String, val OperatingSystem: String)
