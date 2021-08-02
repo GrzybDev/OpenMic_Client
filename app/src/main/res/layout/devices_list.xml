@@ -10,28 +10,29 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_weight="1"
+        android:layout_weight="2"
         android:gravity="center"
         android:orientation="vertical"
         tools:ignore="UseCompoundDrawables">
 
         <ImageView
             android:id="@+id/deviceOsIcon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
             android:contentDescription="@string/icons_server_os"
             app:srcCompat="@drawable/ic_baseline_help_24" />
 
         <TextView
-            android:id="@+id/deviceServerAppInfo"
+            android:id="@+id/deviceOs"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center" />
+            android:gravity="center"
+            android:maxLines="2"
+            tools:text="System 1.0" />
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/deviceIdsContainer"
-        android:layout_width="wrap_content"
+        android:layout_width="128dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_weight="1"
@@ -42,13 +43,25 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+            android:singleLine="true"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+            tools:text="Test PC" />
 
         <TextView
             android:id="@+id/deviceAddress"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:gravity="center" />
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:singleLine="true"
+            tools:text="255.255.255.255" />
+
+        <TextView
+            android:id="@+id/appId"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:maxLines="2"
+            tools:text="Official OpenMic Server" />
 
     </LinearLayout>
 
@@ -56,7 +69,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_weight="1"
+        android:layout_weight="2"
         android:gravity="center"
         android:orientation="vertical">
 
@@ -64,13 +77,16 @@
             android:id="@+id/connectBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/device_list_connect" />
+            android:text="@string/device_list_connect"
+            tools:ignore="TextContrastCheck" />
 
         <TextView
             android:id="@+id/deviceTrustStatus"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center" />
+            android:gravity="center"
+            android:maxLines="2"
+            tools:text="Trusted / Up to date" />
     </LinearLayout>
 
 </LinearLayout>
