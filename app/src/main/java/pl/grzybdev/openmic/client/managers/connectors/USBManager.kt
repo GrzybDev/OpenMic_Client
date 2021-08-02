@@ -22,7 +22,7 @@ class USBManager(private val context: Context) : BaseManager() {
             }
         }
 
-    override var discoveredDevices: List<BroadcastPacket> = emptyList()
+    override var discoveredDevices: MutableList<BroadcastPacket> = mutableListOf()
 
     override fun startManager() {
         Log.d(javaClass.name, "startManager: Registering batteryStatusReceiver...")

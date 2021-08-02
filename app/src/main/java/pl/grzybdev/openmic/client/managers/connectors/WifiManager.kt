@@ -16,16 +16,21 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import pl.grzybdev.openmic.client.OpenMic
 import pl.grzybdev.openmic.client.activities.MainActivity
+import pl.grzybdev.openmic.client.activities.fragments.main.DevicesList
 import pl.grzybdev.openmic.client.dataclasses.packets.BroadcastPacket
 import pl.grzybdev.openmic.client.enums.manager.ConnectionType
 import pl.grzybdev.openmic.client.enums.manager.ManagerStatus
+import pl.grzybdev.openmic.client.enums.ui.MainFragment
 import pl.grzybdev.openmic.client.managers.BaseManager
+import kotlin.concurrent.fixedRateTimer
 
 class WifiManager(private val context: Context) : BaseManager() {
 
     companion object {
         const val WIFI_STATE_PERMISSION = "android.permission.ACCESS_FINE_LOCATION"
         const val WIFI_CHECK_INTENT = "android.net.conn.CONNECTIVITY_CHANGE"
+        const val ADD_INDEX = 0
+        const val DEVICE_TIMEOUT = 30
     }
 
     override val broadcastReceiver: BroadcastReceiver
@@ -35,11 +40,14 @@ class WifiManager(private val context: Context) : BaseManager() {
             }
         }
 
-    override var discoveredDevices: List<BroadcastPacket> = emptyList()
+    override var discoveredDevices: MutableList<BroadcastPacket> = mutableListOf()
+    private var devicesLastHeartBeat: MutableMap<String, Long> = mutableMapOf()
 
     private lateinit var connectivityManager: ConnectivityManager
     private lateinit var connectivityManagerCallback: ConnectivityManager.NetworkCallback
     private lateinit var wifiManager: WifiManager
+
+    private lateinit var devicesListContext: DevicesList
 
     override fun startManager() {
         Log.d(javaClass.name, "startManager: Initializing WiFi Manager...")
@@ -136,5 +144,62 @@ class WifiManager(private val context: Context) : BaseManager() {
             builder.build(),
             getConnectivityManagerCallback()
         )
+    }
+
+    fun registerDeviceListContext(context: DevicesList) {
+        devicesListContext = context
+    }
+
+    fun addDevice(data: BroadcastPacket) {
+        discoveredDevices.forEach {
+            server ->
+            run {
+                if (data.DeviceInfo.DeviceID == server.DeviceInfo.DeviceID) {
+                    Log.d(javaClass.name, "addDevice: Cannot add ${data.DeviceInfo.DeviceID}, because this device is already discovered!")
+
+                    if (devicesLastHeartBeat[data.DeviceInfo.DeviceID] != null) {
+                        devicesLastHeartBeat[data.DeviceInfo.DeviceID] = System.currentTimeMillis() / 1000
+                    }
+
+                    return
+                }
+            }
+        }
+
+        discoveredDevices.add(ADD_INDEX, data)
+        devicesLastHeartBeat[data.DeviceInfo.DeviceID] = System.currentTimeMillis() / 1000
+
+        if (this::devicesListContext.isInitialized) {
+            devicesListContext.requireActivity().runOnUiThread {
+                devicesListContext.deviceListAdapter.notifyItemInserted(ADD_INDEX)
+            }
+        }
+
+        fixedRateTimer(data.DeviceInfo.DeviceID + " Heartbeat", true, 0L, 1000) {
+            if ((System.currentTimeMillis() / 1000) > devicesLastHeartBeat[data.DeviceInfo.DeviceID]!! + DEVICE_TIMEOUT) {
+                devicesLastHeartBeat.remove(data.DeviceInfo.DeviceID)
+                Log.d(javaClass.name, "deviceHeartbeat: Haven't received heartbeat from device ${data.DeviceInfo.DeviceID} from 5 seconds, removing from discovered devices list...")
+
+                discoveredDevices.forEachIndexed {
+                    index, server ->
+                    run {
+                        if (server.DeviceInfo.DeviceID == data.DeviceInfo.DeviceID) {
+                            discoveredDevices.remove(server)
+
+                            try {
+                                devicesListContext.requireActivity().runOnUiThread {
+                                    devicesListContext.deviceListAdapter.notifyItemRemoved(index)
+                                    (devicesListContext.requireActivity() as MainActivity).changeFragment(MainFragment.MainScreen)
+                                }
+                            } catch (e: IllegalStateException) {
+                                Log.e(javaClass.name, e.toString())
+                            }
+                        }
+                    }
+                }
+
+                cancel()
+            }
+        }
     }
 }
