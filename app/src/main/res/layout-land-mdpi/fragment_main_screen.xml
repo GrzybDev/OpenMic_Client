@@ -53,15 +53,11 @@
         android:id="@+id/statusContainer"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginRight="16dp"
+        android:layout_marginTop="32dp"
         android:layout_marginBottom="16dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toTopOf="@+id/descriptionLayout"
-        app:layout_constraintEnd_toStartOf="@+id/adView_Main_Big"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/titleLayout">
 
@@ -153,9 +149,9 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginLeft="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginRight="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginBottom="32dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/adView_Main_Big"
@@ -170,13 +166,6 @@
             android:text="@string/main_page_faq_title"
             android:textAppearance="@style/TextAppearance.AppCompat.Large" />
 
-        <TextView
-            android:id="@+id/descriptionFaq"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="@string/main_page_faq" />
-
         <LinearLayout
             android:id="@+id/linkLayout"
             android:layout_width="match_parent"
@@ -188,18 +177,15 @@
                 style="?android:attr/buttonBarButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="12dp"
-                android:layout_weight="1"
                 android:text="@string/main_page_btn_tutorial"
-                android:textColor="@color/button_borderless_text" />
+                android:textColor="@color/button_borderless_text"
+                tools:ignore="SmallSp" />
 
             <Button
                 android:id="@+id/faqBtn"
                 style="?android:attr/buttonBarButtonStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="12dp"
-                android:layout_weight="1"
                 android:text="@string/main_page_btn_faq"
                 android:textColor="@color/button_borderless_text" />
         </LinearLayout>
@@ -210,12 +196,10 @@
         android:id="@+id/adView_Main_Big"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
-        app:adSize="MEDIUM_RECTANGLE"
+        app:adSize="LARGE_BANNER"
         app:adUnitId="@string/banner_main_big_unit_id"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/titleLayout" />
+        app:layout_constraintTop_toBottomOf="@+id/statusContainer" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
