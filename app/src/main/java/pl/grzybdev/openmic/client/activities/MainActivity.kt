@@ -1,6 +1,7 @@
 package pl.grzybdev.openmic.client.activities
 
 import android.os.Bundle
+import android.os.PersistableBundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -52,6 +53,22 @@ class MainActivity : AppCompatActivity(), ManagerInterface {
         (application as OpenMic).connectionManagers.forEach {
                 (_, manager) -> manager.stopManager()
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+
+        outState.putInt("currentFragment", currentFragment.id)
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+
+        val map = MainFragment.values().associateBy(MainFragment::id)
+        val previousFragment: MainFragment? = map[savedInstanceState.getInt("currentFragment", -1)]
+
+        if (previousFragment != null)
+            changeFragment(previousFragment)
     }
 
     fun changeFragment(newFragment: MainFragment) {
