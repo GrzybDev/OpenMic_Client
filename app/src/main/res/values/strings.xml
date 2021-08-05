@@ -11,8 +11,8 @@
     <!-- Main Activity -->
     <string name="main_page_title">You\'re ready to go!</string>
     <string name="main_status_main">We\'ll try to automatically connect with your PC via:</string>
-    <string name="main_status_wifi">Network (Wireless)</string>
-    <string name="main_status_usb">USB (Wired)</string>
+    <string name="main_status_wifi">Network\n(Wireless)</string>
+    <string name="main_status_usb">USB\n(Wired)</string>
     <string name="main_status_wifi_enabled">Looking for servers…</string>
     <string name="main_status_wifi_no_location">Disabled, no permission to use location</string>
     <string name="main_status_wifi_disabled">Not connected to Wi-Fi network</string>
