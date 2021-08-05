@@ -49,7 +49,11 @@ class WifiManager(private val context: Context) : BaseManager() {
 
     private lateinit var devicesListContext: DevicesList
 
+    private var isRunning = false
+
     override fun startManager() {
+        isRunning = true
+
         Log.d(javaClass.name, "startManager: Initializing WiFi Manager...")
 
         if (ContextCompat.checkSelfPermission(context, WIFI_STATE_PERMISSION) == PackageManager.PERMISSION_DENIED) {
@@ -79,6 +83,8 @@ class WifiManager(private val context: Context) : BaseManager() {
     }
 
     override fun stopManager() {
+        isRunning = false
+
         Log.d(javaClass.name, "stopManager: Stopping WifiManager...")
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && this::connectivityManager.isInitialized) {
@@ -94,6 +100,8 @@ class WifiManager(private val context: Context) : BaseManager() {
         } catch (e: IllegalArgumentException) {
             Log.w(javaClass.name, "stopManager: Cannot unregister networkReceiver, because it's not registered!")
         }
+
+        updateState(null)
     }
 
     override fun updateState(intent: Intent?) {
@@ -104,7 +112,7 @@ class WifiManager(private val context: Context) : BaseManager() {
 
             val wifiInfo = wifiManager.connectionInfo
 
-            if (wifiInfo.networkId != -1) {
+            if (wifiInfo.networkId != -1 && isRunning) {
                 (context as MainActivity).updateStatus(ConnectionType.WiFi, ManagerStatus.Ready)
                 (context.application as OpenMic).broadcastListener.startListening(49152, context)
             } else {
@@ -114,6 +122,7 @@ class WifiManager(private val context: Context) : BaseManager() {
         } else {
             Log.d(javaClass.name, "updateState: WiFi adapter is OFF")
             (context as MainActivity).updateStatus(ConnectionType.WiFi, ManagerStatus.NotReady)
+            (context.application as OpenMic).broadcastListener.stopListening()
         }
     }
 

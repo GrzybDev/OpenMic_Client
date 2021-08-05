@@ -40,10 +40,16 @@ class USBManager(private val context: Context) : BaseManager() {
         } catch (e: IllegalArgumentException) {
             Log.w(javaClass.name, "stopManager: Cannot unregister batteryStatusReceiver, because it's not registered!")
         }
+
+        updateState(null)
     }
 
     override fun updateState(intent: Intent?) {
         Log.d(javaClass.name, "updateUSBStatus: USB status has been updated")
+
+        if (intent == null) {
+            (context as MainActivity).updateStatus(ConnectionType.USB, ManagerStatus.NotReady)
+        }
 
         val status: Int = intent?.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ?: return
         val isCharging: Boolean = status == BatteryManager.BATTERY_STATUS_CHARGING || status == BatteryManager.BATTERY_STATUS_FULL
