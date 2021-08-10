@@ -9,6 +9,9 @@ abstract class BaseManager {
     abstract val broadcastReceiver: BroadcastReceiver
     abstract var discoveredDevices: MutableList<BroadcastPacket>
 
+    abstract var isRunning: Boolean
+    abstract var lastState: Boolean
+
     abstract fun startManager()
     abstract fun stopManager()
     abstract fun updateState(intent: Intent?)

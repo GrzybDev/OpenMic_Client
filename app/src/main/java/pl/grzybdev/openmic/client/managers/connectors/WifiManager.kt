@@ -16,11 +16,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import pl.grzybdev.openmic.client.OpenMic
 import pl.grzybdev.openmic.client.activities.MainActivity
-import pl.grzybdev.openmic.client.activities.fragments.main.DevicesList
+import pl.grzybdev.openmic.client.activities.fragments.main.DevicesListScreen
 import pl.grzybdev.openmic.client.dataclasses.packets.BroadcastPacket
 import pl.grzybdev.openmic.client.enums.manager.ConnectionType
 import pl.grzybdev.openmic.client.enums.manager.ManagerStatus
-import pl.grzybdev.openmic.client.enums.ui.MainFragment
 import pl.grzybdev.openmic.client.managers.BaseManager
 import kotlin.concurrent.fixedRateTimer
 
@@ -47,9 +46,10 @@ class WifiManager(private val context: Context) : BaseManager() {
     private lateinit var connectivityManagerCallback: ConnectivityManager.NetworkCallback
     private lateinit var wifiManager: WifiManager
 
-    private lateinit var devicesListContext: DevicesList
+    private lateinit var devicesListScreenContext: DevicesListScreen
 
-    private var isRunning = false
+    override var isRunning = false
+    override var lastState = false
 
     override fun startManager() {
         isRunning = true
@@ -113,13 +113,22 @@ class WifiManager(private val context: Context) : BaseManager() {
             val wifiInfo = wifiManager.connectionInfo
 
             if (wifiInfo.networkId != -1 && isRunning) {
+                if (lastState) return
+                else lastState = true
+
                 (context as MainActivity).updateStatus(ConnectionType.WiFi, ManagerStatus.Ready)
                 (context.application as OpenMic).broadcastListener.startListening(49152, context)
             } else {
+                if (!lastState) return
+                else lastState = false
+
                 (context as MainActivity).updateStatus(ConnectionType.WiFi, ManagerStatus.NotReady)
                 (context.application as OpenMic).broadcastListener.stopListening()
             }
         } else {
+            if (!lastState) return
+            else lastState = false
+
             Log.d(javaClass.name, "updateState: WiFi adapter is OFF")
             (context as MainActivity).updateStatus(ConnectionType.WiFi, ManagerStatus.NotReady)
             (context.application as OpenMic).broadcastListener.stopListening()
@@ -155,8 +164,8 @@ class WifiManager(private val context: Context) : BaseManager() {
         )
     }
 
-    fun registerDeviceListContext(context: DevicesList) {
-        devicesListContext = context
+    fun registerDeviceListContext(context: DevicesListScreen) {
+        devicesListScreenContext = context
     }
 
     fun addDevice(data: BroadcastPacket) {
@@ -178,9 +187,9 @@ class WifiManager(private val context: Context) : BaseManager() {
         discoveredDevices.add(ADD_INDEX, data)
         devicesLastHeartBeat[data.DeviceInfo.DeviceID] = System.currentTimeMillis() / 1000
 
-        if (this::devicesListContext.isInitialized) {
-            devicesListContext.requireActivity().runOnUiThread {
-                devicesListContext.deviceListAdapter.notifyItemInserted(ADD_INDEX)
+        if (this::devicesListScreenContext.isInitialized) {
+            devicesListScreenContext.requireActivity().runOnUiThread {
+                devicesListScreenContext.deviceListAdapter.notifyItemInserted(ADD_INDEX)
             }
         }
 
@@ -196,9 +205,8 @@ class WifiManager(private val context: Context) : BaseManager() {
                             discoveredDevices.remove(server)
 
                             try {
-                                devicesListContext.requireActivity().runOnUiThread {
-                                    devicesListContext.deviceListAdapter.notifyItemRemoved(index)
-                                    (devicesListContext.requireActivity() as MainActivity).changeFragment(MainFragment.MainScreen)
+                                devicesListScreenContext.requireActivity().runOnUiThread {
+                                    devicesListScreenContext.deviceListAdapter.notifyItemRemoved(index)
                                 }
                             } catch (e: IllegalStateException) {
                                 Log.e(javaClass.name, e.toString())
