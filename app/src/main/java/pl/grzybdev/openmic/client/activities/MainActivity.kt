@@ -1,14 +1,14 @@
 package pl.grzybdev.openmic.client.activities
 
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import pl.grzybdev.openmic.client.OpenMic
 import pl.grzybdev.openmic.client.R
-import pl.grzybdev.openmic.client.activities.fragments.main.DevicesList
+import pl.grzybdev.openmic.client.activities.fragments.main.ConnectingScreen
+import pl.grzybdev.openmic.client.activities.fragments.main.DevicesListScreen
 import pl.grzybdev.openmic.client.activities.fragments.main.MainScreen
 import pl.grzybdev.openmic.client.dataclasses.packets.BroadcastPacket
 import pl.grzybdev.openmic.client.enums.manager.ConnectionType
@@ -39,36 +39,26 @@ class MainActivity : AppCompatActivity(), ManagerInterface {
         super.onResume()
 
         Log.d(javaClass.name, "onResume: Starting all connection managers...")
-
-        (application as OpenMic).connectionManagers.forEach {
-                (_, manager) -> manager.startManager()
-        }
+        startAllManagers()
     }
 
     override fun onPause() {
         super.onPause()
 
         Log.d(javaClass.name, "onPause: Stopping all connection managers...")
+        stopAllManagers()
+    }
 
+    private fun startAllManagers() {
         (application as OpenMic).connectionManagers.forEach {
-                (_, manager) -> manager.stopManager()
+                (_, manager) -> manager.startManager()
         }
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-
-        outState.putInt("currentFragment", currentFragment.id)
-    }
-
-    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        super.onRestoreInstanceState(savedInstanceState)
-
-        val map = MainFragment.values().associateBy(MainFragment::id)
-        val previousFragment: MainFragment? = map[savedInstanceState.getInt("currentFragment", -1)]
-
-        if (previousFragment != null)
-            changeFragment(previousFragment)
+    fun stopAllManagers() {
+        (application as OpenMic).connectionManagers.forEach {
+                (_, manager) -> manager.stopManager()
+        }
     }
 
     fun changeFragment(newFragment: MainFragment) {
@@ -78,7 +68,8 @@ class MainActivity : AppCompatActivity(), ManagerInterface {
         val fragment: Fragment = when (newFragment) {
             MainFragment.None -> return
             MainFragment.MainScreen -> MainScreen()
-            MainFragment.DevicesList -> DevicesList()
+            MainFragment.DevicesList -> DevicesListScreen()
+            MainFragment.Connecting -> ConnectingScreen()
         }
 
         // Create new fragment and transaction
@@ -91,6 +82,10 @@ class MainActivity : AppCompatActivity(), ManagerInterface {
 
         // Commit the transaction
         transaction.commit()
+
+        runOnUiThread {
+            supportFragmentManager.executePendingTransactions() // Make sure transaction is finished
+        }
     }
 
     override fun updateStatus(type: ConnectionType, status: ManagerStatus) {
@@ -121,6 +116,7 @@ class MainActivity : AppCompatActivity(), ManagerInterface {
 
     override fun onDeviceDiscovered(type: ConnectionType, data: BroadcastPacket) {
         val manager: BaseManager = (application as OpenMic).connectionManagers[type]!!
+        if (!manager.isRunning) return
 
         when (type) {
             ConnectionType.WiFi -> {
