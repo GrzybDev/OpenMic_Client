@@ -20,7 +20,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import java.lang.NullPointerException
 
 
-class DevicesList : Fragment(), FragmentInterface {
+class DevicesListScreen : Fragment(), FragmentInterface {
 
     override val adViewsPortrait: List<Int>
         get() = listOf(R.id.adView_deviceList)
