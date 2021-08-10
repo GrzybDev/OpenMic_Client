@@ -12,9 +12,14 @@ import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.recyclerview.widget.RecyclerView
 import pl.grzybdev.openmic.client.R
+import pl.grzybdev.openmic.client.activities.MainActivity
+import pl.grzybdev.openmic.client.activities.fragments.main.ConnectingScreen
 import pl.grzybdev.openmic.client.dataclasses.packets.BroadcastPacket
+import pl.grzybdev.openmic.client.dataclasses.ui.ConnectingScreenArgs
 import pl.grzybdev.openmic.client.enums.VersionStatus
+import pl.grzybdev.openmic.client.enums.ui.MainFragment
 import pl.grzybdev.openmic.client.tools.ServerHelper
+import kotlin.concurrent.thread
 
 
 class DeviceListAdapter(val context: Context, data: List<BroadcastPacket>) : RecyclerView.Adapter<DeviceListAdapter.ViewHolder>() {
@@ -60,6 +65,12 @@ class DeviceListAdapter(val context: Context, data: List<BroadcastPacket>) : Rec
 
         holder.connectBtn.setOnClickListener {
             Log.d(javaClass.name, "${item.Addresses[0]}:${item.Port}")
+
+            thread { (context as MainActivity).stopAllManagers() }
+            (context as MainActivity).changeFragment(MainFragment.Connecting)
+
+            val args = ConnectingScreenArgs(item.Addresses, item.Port, item.Hostname)
+            ConnectingScreen.connectingContext.connect(args)
         }
     }
 
